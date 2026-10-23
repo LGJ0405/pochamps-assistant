@@ -1,0 +1,23 @@
+# Python 컴파일 파일 무시
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.pytest_cache/
+
+# 키 및 환경 설정 파일 무시
+*.env
+*.pem
+
+# VS Code 설정 무시
+.vscode/
+
+# 데이터베이스 파일 무시
+*.sqlite3
+
+# OS 파일 무시
+.DS_Store
+
+# 기타
+.venv/
+node_modules/

@@ -1,0 +1,70 @@
+{
+  "보만다": [
+    {
+      "name_ko": "메가보만다",
+      "species": "Salamence-Mega",
+      "form_desc": "메가진화 물리 이판사판태클형",
+      "is_mega": true,
+      "item": "Salamencite",
+      "item_ko": "보만다나이트",
+      "ability": "Aerilate",
+      "ability_ko": "스카이스킨",
+      "nature": "Jolly",
+      "nature_ko": "명랑",
+      "evs": {
+        "hp": 4,
+        "atk": 252,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "moves": [
+        "Double-Edge",
+        "Dragon Dance",
+        "Earthquake",
+        "Roost"
+      ],
+      "moves_ko": [
+        "이판사판태클",
+        "용의춤",
+        "지진",
+        "날개쉬기"
+      ]
+    }
+  ],
+  "리자몽": [
+    {
+      "name_ko": "메가리자몽X",
+      "species": "Charizard-Mega-X",
+      "form_desc": "메가진화X 물리 딜러형",
+      "is_mega": true,
+      "item": "Charizardite X",
+      "item_ko": "리자몽나이트X",
+      "ability": "Tough Claws",
+      "ability_ko": "단단한발톱",
+      "nature": "Adamant",
+      "nature_ko": "고집",
+      "evs": {
+        "hp": 4,
+        "atk": 252,
+        "def": 0,
+        "spa": 0,
+        "spd": 0,
+        "spe": 252
+      },
+      "moves": [
+        "Flare Blitz",
+        "Dragon Claw",
+        "Dragon Dance",
+        "Earthquake"
+      ],
+      "moves_ko": [
+        "플레어드라이브",
+        "드래곤클로",
+        "용의춤",
+        "지진"
+      ]
+    }
+  ]
+}

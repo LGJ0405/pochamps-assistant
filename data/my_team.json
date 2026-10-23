@@ -1,0 +1,48 @@
+{
+  "team": [
+    {
+      "name_ko": "캥카",
+      "species": "Kangaskhan",
+      "level": 50,
+      "nature": "Adamant",
+      "nature_ko": "고집",
+      "item": "Kangaskhanite",
+      "item_ko": "캥카나이트",
+      "ability": "Scrappy",
+      "ability_ko": "배짱",
+      "mega_ability": "Parental Bond",
+      "mega_ability_ko": "부자유친",
+      "can_mega": true,
+      "is_mega": true,
+      "mega_species": "Kangaskhan-Mega",
+      "evs": {
+        "hp": 252,
+        "atk": 252,
+        "def": 4,
+        "spa": 0,
+        "spd": 0,
+        "spe": 0
+      },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "spd": 31,
+        "spe": 31
+      },
+      "moves": [
+        "Fake Out",
+        "Double-Edge",
+        "Ice Beam",
+        "Sucker Punch"
+      ],
+      "moves_ko": [
+        "속이기",
+        "이판사판태클",
+        "냉동빔",
+        "기습"
+      ]
+    }
+  ]
+}
