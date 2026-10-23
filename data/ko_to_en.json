@@ -1,0 +1,38 @@
+{
+  "pokemon": {
+    "캥카": "Kangaskhan",
+    "메가캥카": "Kangaskhan-Mega",
+    "보만다": "Salamence",
+    "메가보만다": "Salamence-Mega",
+    "리자몽": "Charizard",
+    "메가리자몽X": "Mega-Charizard-X",
+    "메가리자몽Y": "Mega-Charizard-Y"
+  },
+  "moves": {
+    "속이기": "Fake Out",
+    "이판사판태클": "Double-Edge",
+    "냉동빔": "Ice Beam",
+    "기습": "Sucker Punch",
+    "용성군": "Draco Meteor",
+    "하이퍼보이스": "Hyper Voice",
+    "플레어드라이브": "Flare Blitz",
+    "솔라빔": "Solar Beam"
+  },
+  "abilities": {
+    "배짱": "Scrappy",
+    "부자유친": "Parental Bond",
+    "위협": "Intimidate",
+    "스카이스킨": "Aerilate",
+    "맹화": "Blaze",
+    "단단한발톱": "Tough Claws",
+    "가뭄": "Drought"
+  },
+  "items": {
+    "캥카나이트": "Kangaskhanite",
+    "보만다나이트": "Salamencite",
+    "리자몽나이트X": "Charizardite X",
+    "리자몽나이트Y": "Charizardite Y",
+    "구애스카프": "Choice Scarf",
+    "기합의띠": "Focus Sash"
+  }
+}
