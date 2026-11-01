@@ -83,23 +83,24 @@ def test_dict_based_calc():
     """딕셔너리 기반 직접 계산"""
     req = {
         "attacker": {
-            "species": "Pikachu",
+            # "species": "Pikachu",
+            "species": "Toxtricity",
             "level": 50,
             "item": "Light Ball",
             "ability": "Static",
-            "nature": "Timid",
-            "evs": {"spa": 252, "spe": 252},
+            "nature": "Docile",
+            "evs": {"atk": 252, "spa": 252},
         },
         "defender": {
             # "species": "Ninetales-Alola",   # 리전폼은 이렇게
             # "species": "Garchomp-Mega",   # 메진은 이렇게
-            # "species": "Lucario-Mega-Z",   # Z루카 특성 테스트
-            "species": "Garchomp",
+            "species": "Lucario-Mega-Z",   # Z루카 특성 테스트
+            # "species": "Garchomp",
             "level": 50,
             # "ability": "Aura Guard",   # Z루카 특성 테스트
             "ability": "Rough Skin",
             "nature": "Jolly",
-            "evs": {"hp":4, "atk": 252, "spe": 252},
+            "evs": {},
         },
         "move": "Thunderbolt",
     }
@@ -146,15 +147,62 @@ def test_speed_comparison():
     assert atk_spe > def_spe, "한카리아스가 망나뇽보다 빨라야 합니다"
     print(f"   → 한카리아스 선공!")
 
+def test_ko_to_en():
+    """data/ko_to_en.json 의 pokemon 영문명 전체 계산 테스트"""
+    data_path = Path(__file__).resolve().parent / "data" / "ko_to_en.json"
+    with open(data_path, "r", encoding="utf-8") as f:
+        ko_to_en = json.load(f)
+
+    pokemon_dict = ko_to_en.get("pokemon", {})
+    total = len(pokemon_dict)
+    print(f"\n[ko_to_en.json] 총 {total}개 포켓몬 영문명 검증 시작...")
+
+    success_count = 0
+    failed = []
+
+    with CalcBridge() as bridge:
+        for idx, (ko_name, en_name) in enumerate(pokemon_dict.items(), 1):
+            req = {
+                "attacker": {
+                    "species": en_name,
+                    "level": 50,
+                },
+                "defender": {
+                    "species": "Pikachu",
+                    "level": 50,
+                },
+                "move": "Thunderbolt",
+            }
+            res = bridge.calculate_dict(req)
+            if res.get("ok"):
+                success_count += 1
+                print(f"[{idx:3d}/{total}] ✅ {ko_name} ({en_name}): {res['result']['desc']}")
+            else:
+                err_msg = res.get("error", "알 수 없는 오류")
+                failed.append((ko_name, en_name, err_msg))
+                print(f"[{idx:3d}/{total}] ❌ {ko_name} ({en_name}): {err_msg}")
+
+    print("\n" + "=" * 60)
+    print(f"  검증 결과: 성공 {success_count}/{total}개 (실패 {len(failed)}개)")
+    print("=" * 60)
+
+    if failed:
+        print("\n❌ 실패 목록:")
+        for ko, en, err in failed:
+            print(f"  - {ko} ({en}): {err}")
+
+    assert len(failed) == 0, f"총 {len(failed)}개의 포켓몬 영문명 검증에 실패했습니다."
+
 
 if __name__ == "__main__":
-    # print("=" * 60)
+    print("=" * 60)
     print("  포챔스 배틀 어시스턴트 - Step 1 계산 엔진 테스트")
     print("=" * 60)
     # test_basic_damage_calc() # 기본 데미지 계산
     # test_field_weather_calc() # 날씨 데미지 계산
-    test_dict_based_calc()
+    # test_dict_based_calc()
     # test_speed_comparison() # 스피드 선공 계산
-    # print("\n" + "=" * 60)
-    # print("  모든 테스트 통과! 🎉")
-    # print("=" * 60)
+    test_ko_to_en()
+    print("\n" + "=" * 60)
+    print("  모든 테스트 통과! 🎉")
+    print("=" * 60)
