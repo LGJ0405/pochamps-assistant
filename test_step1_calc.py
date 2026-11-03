@@ -153,7 +153,7 @@ def test_ko_to_en():
     with open(data_path, "r", encoding="utf-8") as f:
         ko_to_en = json.load(f)
 
-    pokemon_dict = ko_to_en.get("pokemon", {})
+    pokemon_dict = ko_to_en.get("species", {})
     total = len(pokemon_dict)
     print(f"\n[ko_to_en.json] 총 {total}개 포켓몬 영문명 검증 시작...")
 
