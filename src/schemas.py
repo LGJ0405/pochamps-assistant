@@ -12,7 +12,7 @@ from typing import Optional
 
 @dataclass
 class StatSpread:
-    """노력치(EV) 또는 개체값(IV) 분배"""
+    """포챔스 실수치(SP, 총합 66) 또는 노력치(EV) 분배"""
     hp: int = 0
     atk: int = 0
     def_: int = 0  # 'def'는 예약어라 def_로 표기
@@ -133,7 +133,7 @@ class CalcRequest:
     defender: PokemonInput
     move: str
     field: Optional[FieldInput] = None
-    gen: int = 9
+    gen: int = 0
 
     def to_dict(self) -> dict:
         d = {

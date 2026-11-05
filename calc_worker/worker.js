@@ -19,8 +19,8 @@
 const { Generations, Pokemon, Move, Field, calculate } = require("@smogon/calc");
 const readline = require("readline");
 
-// 9세대(SV) 기본, 필요 시 요청에서 gen 지정 가능
-const DEFAULT_GEN = 9;
+// 0세대: 포켓몬 챔피언스 (Champions) 모드 기본 (실수치 66 분배 체계)
+const DEFAULT_GEN = 0;
 
 /**
  * JSON 요청으로부터 Pokemon 객체 생성
@@ -45,7 +45,7 @@ function buildPokemon(gen, data) {
  * 데미지 계산 실행
  */
 function runCalc(request) {
-  const genNum = request.gen || DEFAULT_GEN;
+  const genNum = request.gen !== undefined ? request.gen : DEFAULT_GEN;
   const gen = Generations.get(genNum);
 
   const attacker = buildPokemon(gen, request.attacker);

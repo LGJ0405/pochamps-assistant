@@ -26,14 +26,14 @@ def test_basic_damage_calc():
         item="Life Orb",
         ability="Rough Skin",
         nature="Jolly",
-        evs=StatSpread(hp=0, atk=252, def_=0, spa=0, spd=0, spe=252),
+        evs=StatSpread(hp=2, atk=32, def_=0, spa=0, spd=0, spe=32),
     )
     defender = PokemonInput(
         species="Metagross",
         level=50,
         ability="Clear Body",
         nature="Adamant",
-        evs=StatSpread(hp=252, atk=0, def_=0, spa=0, spd=0, spe=0),
+        evs=StatSpread(hp=32, atk=32, def_=2, spa=0, spd=0, spe=0),
     )
     request = CalcRequest(attacker=attacker, defender=defender, move="Earthquake")
 
@@ -54,14 +54,14 @@ def test_field_weather_calc():
         level=50,
         ability="Blaze",
         nature="Timid",
-        evs=StatSpread(spa=252, spe=252),
+        evs=StatSpread(hp=2, spa=32, spe=32),
     )
     defender = PokemonInput(
         species="Metagross",
         level=50,
         ability="Clear Body",
         nature="Adamant",
-        evs=StatSpread(hp=252, def_=128, spd=128),
+        evs=StatSpread(hp=32, def_=16, spd=18),
     )
     field = FieldInput(weather="Sun")
     request = CalcRequest(
@@ -83,24 +83,19 @@ def test_dict_based_calc():
     """딕셔너리 기반 직접 계산"""
     req = {
         "attacker": {
-            # "species": "Pikachu",
-            "species": "Toxtricity",
+            "species": "Pikachu",
             "level": 50,
             "item": "Light Ball",
             "ability": "Static",
             "nature": "Docile",
-            "evs": {"atk": 252, "spa": 252},
+            "evs": {"atk": 32, "spa": 32, "spe": 2},
         },
         "defender": {
-            # "species": "Ninetales-Alola",   # 리전폼은 이렇게
-            # "species": "Garchomp-Mega",   # 메진은 이렇게
-            "species": "Lucario-Mega-Z",   # Z루카 특성 테스트
-            # "species": "Garchomp",
+            "species": "Garchomp",
             "level": 50,
-            # "ability": "Aura Guard",   # Z루카 특성 테스트
             "ability": "Rough Skin",
             "nature": "Jolly",
-            "evs": {},
+            "evs": {"hp": 32, "def": 32, "spd": 2},
         },
         "move": "Thunderbolt",
     }
@@ -114,18 +109,18 @@ def test_dict_based_calc():
 
 
 def test_speed_comparison():
-    """스피드 비교: 한카리아스 vs 망나뇽"""
+    """스피드 비교: 한카리아스 vs 망나뇽 (포챔스 66 실수치 분배)"""
     garchomp = PokemonInput(
         species="Garchomp",
         level=50,
         nature="Jolly",
-        evs=StatSpread(spe=252),
+        evs=StatSpread(hp=2, atk=32, spe=32),
     )
     dragonite = PokemonInput(
         species="Dragonite",
         level=50,
         nature="Adamant",
-        evs=StatSpread(hp=252, atk=252),
+        evs=StatSpread(hp=32, atk=32, def_=2),
     )
 
     # 양쪽 다 attacker로 써서 스탯을 뽑아낸다
@@ -147,62 +142,14 @@ def test_speed_comparison():
     assert atk_spe > def_spe, "한카리아스가 망나뇽보다 빨라야 합니다"
     print(f"   → 한카리아스 선공!")
 
-def test_ko_to_en():
-    """data/ko_to_en.json 의 pokemon 영문명 전체 계산 테스트"""
-    data_path = Path(__file__).resolve().parent / "data" / "ko_to_en.json"
-    with open(data_path, "r", encoding="utf-8") as f:
-        ko_to_en = json.load(f)
-
-    pokemon_dict = ko_to_en.get("species", {})
-    total = len(pokemon_dict)
-    print(f"\n[ko_to_en.json] 총 {total}개 포켓몬 영문명 검증 시작...")
-
-    success_count = 0
-    failed = []
-
-    with CalcBridge() as bridge:
-        for idx, (ko_name, en_name) in enumerate(pokemon_dict.items(), 1):
-            req = {
-                "attacker": {
-                    "species": en_name,
-                    "level": 50,
-                },
-                "defender": {
-                    "species": "Pikachu",
-                    "level": 50,
-                },
-                "move": "Thunderbolt",
-            }
-            res = bridge.calculate_dict(req)
-            if res.get("ok"):
-                success_count += 1
-                print(f"[{idx:3d}/{total}] ✅ {ko_name} ({en_name}): {res['result']['desc']}")
-            else:
-                err_msg = res.get("error", "알 수 없는 오류")
-                failed.append((ko_name, en_name, err_msg))
-                print(f"[{idx:3d}/{total}] ❌ {ko_name} ({en_name}): {err_msg}")
-
-    print("\n" + "=" * 60)
-    print(f"  검증 결과: 성공 {success_count}/{total}개 (실패 {len(failed)}개)")
-    print("=" * 60)
-
-    if failed:
-        print("\n❌ 실패 목록:")
-        for ko, en, err in failed:
-            print(f"  - {ko} ({en}): {err}")
-
-    assert len(failed) == 0, f"총 {len(failed)}개의 포켓몬 영문명 검증에 실패했습니다."
-
-
 if __name__ == "__main__":
     print("=" * 60)
-    print("  포챔스 배틀 어시스턴트 - Step 1 계산 엔진 테스트")
+    print("  포챔스 배틀 어시스턴트 - Step 1 계산 엔진 테스트 (Gen 0 포챔스 모드)")
     print("=" * 60)
-    # test_basic_damage_calc() # 기본 데미지 계산
-    # test_field_weather_calc() # 날씨 데미지 계산
-    # test_dict_based_calc()
-    # test_speed_comparison() # 스피드 선공 계산
-    test_ko_to_en()
+    test_basic_damage_calc()   # 기본 데미지 계산
+    test_field_weather_calc()   # 날씨 데미지 계산
+    test_dict_based_calc()      # 딕셔너리 기반 계산
+    test_speed_comparison()     # 스피드 선공 계산
     print("\n" + "=" * 60)
-    print("  모든 테스트 통과! 🎉")
+    print("  Step 1 모든 테스트 통과! 🎉")
     print("=" * 60)

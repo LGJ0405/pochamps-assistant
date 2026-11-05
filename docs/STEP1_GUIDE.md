@@ -78,7 +78,7 @@ sequenceDiagram
     A->>B: CalcRequest 객체 전달 (영문 스펙)
     Note over B,C: UTF-8 JSON Line (IPC 파이프 통신)
     B->>C: stdin 스트림 전송
-    C->>D: calculate(Gen 9, Attacker, Defender, Move, Field)
+    C->>D: calculate(Gen 0, Attacker, Defender, Move, Field)
     D-->>C: 데미지 배열 / KO 확률 / 실수치 스탯 반환
     C-->>B: stdout 스트림 출력 (1-Line JSON)
     B-->>A: CalcResult 객체 반환 (데미지 / 선후공 판정)
@@ -112,7 +112,7 @@ pochamps-assistant/
 
 ### 4.1 Node.js 계산 워커 (`calc_worker/worker.js`)
 * Python 프로세스로부터 `stdin`을 통해 JSON 라인을 한 줄씩 입력받아 파싱합니다.
-* 9세대(SV)를 기본으로 하며, 요청 시 임의 세대(`gen`) 설정이 가능합니다.
+* 0세대(Champions / 포챔스)를 기본(`gen = 0`)으로 하며 (실수치 66 분배 체계), 요청 시 임의 세대(`gen`) 설정이 가능합니다.
 * **메가진화 및 리전폼 기본 지원**:
   * 별도의 매핑 파일 없이 `@smogon/calc`가 자체 지원하는 종족명(`species`) 규격(예: `Garchomp-Mega`, `Charizard-Mega-X`, `Ninetales-Alola`)을 그대로 전달받아 처리합니다.
 * **0배 무효 상성 특수 처리**:
@@ -166,7 +166,7 @@ python -m pytest test_step1_calc.py -v -s
 ### 6.2 포함된 테스트 케이스 ([`test_step1_calc.py`](../test_step1_calc.py))
 1. **`test_basic_damage_calc`**:
    * 공격: 한카리아스 (생명의구슬, 지진)
-   * 방어: 메타그로스 (클리어바디, HP 252)
+   * 방어: 메타그로스 (클리어바디, HP 32)
    * 검증: 물리 땅 기술에 대한 기본 데미지 및 설명 생성 확인.
 2. **`test_field_weather_calc`**:
    * 공격: 리자몽 (맹화, 불대문자)
@@ -178,5 +178,5 @@ python -m pytest test_step1_calc.py -v -s
    * 방어: 한카리아스 (Garchomp)
    * 검증: 무효 상성(전기 ➔ 땅) 시 에러 없이 `0-0 (0 - 0%) -- 효과 없음` 출력 확인.
 4. **`test_speed_comparison`**:
-   * 비교: 한카리아스 (스피드 252) vs 망나뇽 (스피드 무보정)
+   * 비교: 한카리아스 (스피드 32) vs 망나뇽 (스피드 무보정)
    * 검증: 양 포켓몬의 스탯 실수치를 추출하여 선공 판정 확인.

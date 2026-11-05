@@ -25,5 +25,13 @@ $env:PYTHONIOENCODING = "utf-8"
 python test_step1_calc.py
 ```
 
+### 3. Step 2 한영 데이터 링크 및 샘플 계산 테스트
+```powershell
+# Windows PowerShell
+$env:PYTHONIOENCODING = "utf-8"
+python test_step2_data_link.py
+```
+
 ## 📚 문서 목록
 * [Step 1: 계산 엔진 통합 상세 가이드](docs/STEP1_GUIDE.md)
+* [Step 2: 한영 데이터 링크 및 샘플 기반 계산 가이드](docs/STEP2_GUIDE.md)
