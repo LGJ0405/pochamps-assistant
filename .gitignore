@@ -21,3 +21,12 @@ __pycache__/
 # 기타
 .venv/
 node_modules/
+
+# 디버그 크롭 결과물 무시 (기준 스크린샷은 유지)
+tests/screenshots/debug_crops/
+
+# 스크립트로 다운로드 가능한 대용량 원천 에셋 무시
+data/icons/
+data/sprites/
+data/csv/
+data/img/

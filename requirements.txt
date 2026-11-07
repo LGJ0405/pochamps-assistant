@@ -1,2 +1,11 @@
 # 단위 테스트 프레임워크
 pytest>=8.0.0
+
+# 비전 캡처, 이미지 매칭, 초경량 OCR
+mss>=10.0.0
+pywin32>=306
+opencv-python-headless>=4.8.0
+Pillow>=10.0.0
+ImageHash>=4.3.1
+rapidocr-onnxruntime>=1.2.0
+requests>=2.31.0

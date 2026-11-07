@@ -14,35 +14,6 @@ from .schemas import PokemonInput, StatSpread, CalcRequest, FieldInput
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _KO_TO_EN_PATH = _PROJECT_ROOT / "data" / "ko_to_en.json"
 
-# 25개 성격 한국어 -> 영어 매핑
-NATURE_KO_TO_EN = {
-    "고집": "Adamant",
-    "명랑": "Jolly",
-    "겁쟁이": "Timid",
-    "조심": "Modest",
-    "대담": "Bold",
-    "장난꾸러기": "Impish",
-    "차분": "Calm",
-    "신중": "Careful",
-    "용감": "Brave",
-    "냉정": "Quiet",
-    "무사태평": "Relaxed",
-    "건방": "Sassy",
-    "외로움": "Lonely",
-    "개구쟁이": "Naughty",
-    "천진난만": "Naive",
-    "촐랑": "Hasty",
-    "성급": "Hasty",
-    "의젓": "Mild",
-    "덜렁": "Rash",
-    "얌전": "Gentle",
-    "노력": "Hardy",
-    "온순": "Docile",
-    "성실": "Serious",
-    "수줍음": "Bashful",
-    "변덕": "Quirky",
-}
-
 
 class DataAdapter:
     """한영 사전(ko_to_en.json) 기반 데이터 변환기"""
@@ -56,10 +27,32 @@ class DataAdapter:
         self._moves = self._dict.get("moves", {})
         self._abilities = self._dict.get("abilities", {})
         self._items = self._dict.get("items", {})
+        self._natures = self._dict.get("natures", {})
+
+        # 역참조 사전 구축 (영문 소문자 슬러그 -> 정식 영문 종족명 / 한글 종족명)
+        self._slug_to_en: dict[str, str] = {}
+        self._en_to_ko: dict[str, str] = {}
+        for ko_name, en_name in self._species.items():
+            slug = en_name.strip().lower()
+            self._slug_to_en[slug] = en_name
+            if en_name not in self._en_to_ko:
+                self._en_to_ko[en_name] = ko_name
+            if slug not in self._en_to_ko:
+                self._en_to_ko[slug] = ko_name
 
     def to_species_en(self, name_ko: str) -> str:
-        """포켓몬 한글명 -> 영문 종족명"""
-        return self._species.get(name_ko, name_ko)
+        """포켓몬 한글명 또는 영문 슬러그 -> 계산기용 정식 영문 종족명"""
+        if name_ko in self._species:
+            return self._species[name_ko]
+        slug = name_ko.strip().lower()
+        return self._slug_to_en.get(slug, name_ko)
+
+    def to_species_ko(self, name_en_or_slug: str) -> str:
+        """영문 종족명 또는 파일명 슬러그 -> 한글 종족명 역참조"""
+        if name_en_or_slug in self._en_to_ko:
+            return self._en_to_ko[name_en_or_slug]
+        slug = name_en_or_slug.strip().lower()
+        return self._en_to_ko.get(slug, name_en_or_slug)
 
     def to_move_en(self, move_ko: str) -> str:
         """기술 한글명 -> 영문 기술명"""
@@ -75,7 +68,7 @@ class DataAdapter:
 
     def to_nature_en(self, nature_ko: str) -> str:
         """성격 한글명 -> 영문 성격명"""
-        return NATURE_KO_TO_EN.get(nature_ko, nature_ko)
+        return self._natures.get(nature_ko, nature_ko)
 
     def sample_to_pokemon_input(self, sample: dict[str, Any], use_mega: bool = True) -> PokemonInput:
         """

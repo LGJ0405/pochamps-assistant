@@ -1965,5 +1965,32 @@
     "드닐레이브나이트": "Baxcalibrite",
     "싸리용나이트": "Tatsugirinite",
     "킬라플로르나이트": "Glimmoranite"
+  },
+  "natures": {
+    "고집": "Adamant",
+    "명랑": "Jolly",
+    "겁쟁이": "Timid",
+    "조심": "Modest",
+    "대담": "Bold",
+    "장난꾸러기": "Impish",
+    "차분": "Calm",
+    "신중": "Careful",
+    "용감": "Brave",
+    "냉정": "Quiet",
+    "무사태평": "Relaxed",
+    "건방": "Sassy",
+    "외로움": "Lonely",
+    "개구쟁이": "Naughty",
+    "천진난만": "Naive",
+    "촐랑": "Hasty",
+    "성급": "Hasty",
+    "의젓": "Mild",
+    "덜렁": "Rash",
+    "얌전": "Gentle",
+    "노력": "Hardy",
+    "온순": "Docile",
+    "성실": "Serious",
+    "수줍음": "Bashful",
+    "변덕": "Quirky"
   }
 }
