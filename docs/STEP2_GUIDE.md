@@ -36,7 +36,6 @@ curl.exe -o data/csv/item_names.csv https://raw.githubusercontent.com/PokeAPI/po
 아래 단일 스크립트를 실행하면 CSV에서 한국어(`local_language_id = 3`)와 영어(`local_language_id = 9`)를 추출하여 `data/ko_to_en.json`을 갱신하며, 도구(`items`)는 `@smogon/calc` 화이트리스트와 블랙리스트 필터를 거쳐 실전 배틀 도구만 남깁니다:
 
 ```powershell
-$env:PYTHONIOENCODING = "utf-8"
 python scripts/update_ko_to_en.py
 ```
 
@@ -53,7 +52,7 @@ sequenceDiagram
         participant ADP as DataAdapter<br/>(src/adapter.py)
         participant B as CalcBridge<br/>(src/calc_bridge.py)
     end
-    box Node.js 환경 (Subprocess)
+    box rgba(16, 185, 129, 0.1) Node.js 환경 [Subprocess]
         participant C as Worker<br/>(calc_worker/worker.js)
         participant D as @smogon/calc<br/>(Gen 0 Champions Engine)
     end

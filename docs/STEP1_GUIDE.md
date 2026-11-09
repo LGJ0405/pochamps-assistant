@@ -68,7 +68,7 @@ sequenceDiagram
         %% participant DATA as Data Layer<br/>(ko_to_en / 샘플)
         participant B as CalcBridge<br/>(src/calc_bridge.py)
     end
-    box Node.js 환경 (Subprocess)
+    box rgba(16, 185, 129, 0.1) Node.js 환경 [Subprocess]
         participant C as Worker<br/>(calc_worker/worker.js)
         participant D as @smogon/calc<br/>(데미지/스피드 엔진)
     end
@@ -154,7 +154,6 @@ pochamps-assistant/
 
 ```powershell
 # Windows PowerShell
-$env:PYTHONIOENCODING = "utf-8"
 python test_step1_calc.py
 ```
 

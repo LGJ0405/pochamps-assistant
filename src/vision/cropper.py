@@ -2,7 +2,7 @@
 """
 cropper.py
 [Step 3-2] config/roi_coords.json에 정의된 고정 ROI 좌표를 기반으로
-화면을 영역별로 분할(Crop)하고 디버그 이미지를 저장하는 모듈
+선출 화면 및 배틀 화면을 영역별로 분할(Crop)하고 디버그 이미지를 저장하는 모듈
 """
 
 from __future__ import annotations
@@ -54,6 +54,7 @@ class ROICropper:
         self.target_height: int = self.config["resolution"]["height"]
         self.enemy_team_slots: List[dict] = self.config.get("enemy_team_slots", [])
         self.ally_team_slots: List[dict] = self.config.get("ally_team_slots", [])
+        self.phase_indicators: Dict[str, dict] = self.config.get("phase_indicators", {})
         self.battle_rois: Dict[str, dict] = self.config.get("battle_rois", {})
 
     def normalize_frame(self, frame: np.ndarray) -> np.ndarray:
@@ -87,35 +88,75 @@ class ROICropper:
         norm = self.normalize_frame(frame)
         return [self.crop_rect(norm, slot_rect) for slot_rect in self.ally_team_slots]
 
-    def draw_debug_overlay(self, frame: np.ndarray) -> np.ndarray:
+    def crop_phase_indicators(self, frame: np.ndarray) -> Dict[str, np.ndarray]:
+        """페이즈 판별용 고정 UI 영역을 잘라내어 딕셔너리로 반환합니다."""
+        norm = self.normalize_frame(frame)
+        return {name: self.crop_rect(norm, rect) for name, rect in self.phase_indicators.items()}
+
+    def crop_battle_rois(self, frame: np.ndarray) -> Dict[str, np.ndarray]:
+        """배틀 화면의 주요 ROI(상태창 HUD 미니 아이콘, 체력 텍스트 영역)를 잘라내어 반환합니다."""
+        norm = self.normalize_frame(frame)
+        return {name: self.crop_rect(norm, rect) for name, rect in self.battle_rois.items()}
+
+    def draw_debug_overlay(self, frame: np.ndarray, mode: str = "preview") -> np.ndarray:
         """정의된 ROI 박스를 프레임 위에 그려 디버그 오버레이 이미지를 반환합니다."""
         canvas = self.normalize_frame(frame).copy()
 
-        for slot in self.enemy_team_slots:
-            x, y, w, h = slot["x"], slot["y"], slot["w"], slot["h"]
-            cv2.rectangle(canvas, (x, y), (x + w, y + h), (0, 255, 100), 3)
-            cv2.putText(
-                canvas,
-                f"Enemy {slot.get('slot', '')}",
-                (x, max(25, y - 8)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (0, 255, 100),
-                2,
-            )
+        if mode in ("preview", "all"):
+            for slot in self.enemy_team_slots:
+                x, y, w, h = slot["x"], slot["y"], slot["w"], slot["h"]
+                cv2.rectangle(canvas, (x, y), (x + w, y + h), (0, 255, 100), 3)
+                cv2.putText(
+                    canvas,
+                    f"Enemy {slot.get('slot', '')}",
+                    (x, max(25, y - 8)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 255, 100),
+                    2,
+                )
 
-        for slot in self.ally_team_slots:
-            x, y, w, h = slot["x"], slot["y"], slot["w"], slot["h"]
-            cv2.rectangle(canvas, (x, y), (x + w, y + h), (255, 200, 0), 3)
-            cv2.putText(
-                canvas,
-                f"Ally {slot.get('slot', '')}",
-                (x, max(25, y - 8)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (255, 200, 0),
-                2,
-            )
+            for slot in self.ally_team_slots:
+                x, y, w, h = slot["x"], slot["y"], slot["w"], slot["h"]
+                cv2.rectangle(canvas, (x, y), (x + w, y + h), (255, 200, 0), 3)
+                cv2.putText(
+                    canvas,
+                    f"Ally {slot.get('slot', '')}",
+                    (x, max(25, y - 8)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (255, 200, 0),
+                    2,
+                )
+
+        if mode in ("battle", "all"):
+            for name, rect in self.battle_rois.items():
+                x, y, w, h = rect["x"], rect["y"], rect["w"], rect["h"]
+                cv2.rectangle(canvas, (x, y), (x + w, y + h), (0, 255, 100), 3)
+                cv2.putText(
+                    canvas,
+                    name,
+                    (x, max(25, y - 8)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.75,
+                    (0, 255, 100),
+                    2,
+                )
+
+            for name, rect in self.phase_indicators.items():
+                if name == "team_preview_banner":
+                    continue
+                x, y, w, h = rect["x"], rect["y"], rect["w"], rect["h"]
+                cv2.rectangle(canvas, (x, y), (x + w, y + h), (0, 215, 255), 3)
+                cv2.putText(
+                    canvas,
+                    name,
+                    (x, max(25, y - 8)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.75,
+                    (0, 215, 255),
+                    2,
+                )
 
         return canvas
 
@@ -124,34 +165,57 @@ class ROICropper:
         frame: np.ndarray,
         output_dir: Union[str, Path],
         prefix: str = "team_preview",
+        mode: str = "preview",
     ) -> List[Path]:
         """크롭된 조각 이미지들과 전체 ROI 오버레이 이미지를 지정 폴더에 저장합니다."""
         out_path = Path(output_dir)
         out_path.mkdir(parents=True, exist_ok=True)
         saved_files: List[Path] = []
 
-        overlay = self.draw_debug_overlay(frame)
+        overlay = self.draw_debug_overlay(frame, mode=mode)
         overlay_file = out_path / f"{prefix}_overlay.png"
         imwrite_safe(overlay_file, overlay)
         saved_files.append(overlay_file)
 
-        for idx, slot_img in enumerate(self.crop_enemy_slots(frame), 1):
-            p = out_path / f"{prefix}_enemy_slot_{idx}.png"
-            imwrite_safe(p, slot_img)
-            saved_files.append(p)
+        if mode in ("preview", "all"):
+            for idx, slot_img in enumerate(self.crop_enemy_slots(frame), 1):
+                p = out_path / f"{prefix}_enemy_slot_{idx}.png"
+                imwrite_safe(p, slot_img)
+                saved_files.append(p)
 
-        for idx, slot_img in enumerate(self.crop_ally_slots(frame), 1):
-            p = out_path / f"{prefix}_ally_slot_{idx}.png"
-            imwrite_safe(p, slot_img)
-            saved_files.append(p)
+            for idx, slot_img in enumerate(self.crop_ally_slots(frame), 1):
+                p = out_path / f"{prefix}_ally_slot_{idx}.png"
+                imwrite_safe(p, slot_img)
+                saved_files.append(p)
+
+        if mode in ("battle", "all"):
+            for name, roi_img in self.crop_battle_rois(frame).items():
+                p = out_path / f"{prefix}_{name}.png"
+                imwrite_safe(p, roi_img)
+                saved_files.append(p)
+
+            for name, ind_img in self.crop_phase_indicators(frame).items():
+                if name == "team_preview_banner":
+                    continue
+                p = out_path / f"{prefix}_{name}.png"
+                imwrite_safe(p, ind_img)
+                saved_files.append(p)
 
         return saved_files
 
 
 if __name__ == "__main__":
     cropper = ROICropper()
-    sc_path = PROJECT_ROOT / "tests" / "screenshots" / "team_preview.png"
-    debug_dir = PROJECT_ROOT / "tests" / "screenshots" / "debug_crops"
-    img = imread_safe(sc_path)
-    saved = cropper.save_debug_crops(img, debug_dir, prefix="team_preview")
-    print(f"✅ [team_preview.png] 크롭 완료: 총 {len(saved)}개 파일 저장 -> {debug_dir}")
+    screenshots_dir = PROJECT_ROOT / "tests" / "screenshots"
+    debug_dir = screenshots_dir / "debug_crops"
+
+    for sc_name, mode in [
+        ("team_preview_v1.png", "preview"),
+        ("battle_command.png", "battle"),
+        ("battle_mega.png", "battle"),
+    ]:
+        sc_path = screenshots_dir / sc_name
+        if sc_path.exists():
+            img = imread_safe(sc_path)
+            saved = cropper.save_debug_crops(img, debug_dir, prefix=sc_path.stem, mode=mode)
+            print(f"✅ [{sc_name}] ({mode}) 크롭 완료: 총 {len(saved)}개 파일 저장 -> {debug_dir}")

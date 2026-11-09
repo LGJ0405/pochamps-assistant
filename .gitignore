@@ -22,8 +22,9 @@ __pycache__/
 .venv/
 node_modules/
 
-# 디버그 크롭 결과물 무시 (기준 스크린샷은 유지)
+# 디버그 크롭 결과물 및 녹화 영상 무시
 tests/screenshots/debug_crops/
+tests/*.mp4
 
 # 스크립트로 다운로드 가능한 대용량 원천 에셋 무시
 data/icons/

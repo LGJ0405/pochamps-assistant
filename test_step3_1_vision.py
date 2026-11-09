@@ -26,7 +26,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.vision import IconMatcher, ROICropper, imread_safe
 
 SCREENSHOTS_DIR = PROJECT_ROOT / "tests" / "screenshots"
-DEFAULT_SCREENSHOT_PATH = SCREENSHOTS_DIR / "team_preview*.png"
+DEFAULT_SCREENSHOT_PATH = SCREENSHOTS_DIR / "team_preview_v1.png"
 DEBUG_CROPS_DIR = SCREENSHOTS_DIR / "debug_crops"
 ICONS_DIR = PROJECT_ROOT / "data" / "icons"
 
