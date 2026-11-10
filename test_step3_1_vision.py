@@ -49,13 +49,13 @@ def _resolve_screenshot_path(custom_path: Optional[Path] = None) -> Path:
     raise FileNotFoundError(f"{SCREENSHOTS_DIR} 내에 테스트할 선출 화면 스크린샷이 없습니다.")
 
 
-def test_step3_2_roi_crop(screenshot_path: Optional[Path] = None):
-    """[Step 3-2] 선출 화면 ROI 좌표 크롭 및 디버그 이미지 저장 테스트"""
+def test_preview_roi_crop(screenshot_path: Optional[Path] = None):
+    """[검증 1] 선출 화면 ROI 좌표 크롭 및 디버그 이미지 저장 테스트"""
     target_path = _resolve_screenshot_path(screenshot_path)
     prefix = target_path.stem
 
     print("\n============================================================")
-    print(f" [검증 1] Step 3-2: 선출 화면 ROI 크롭 검증 ({target_path.name})")
+    print(f" [검증 1] 선출 화면 ROI 크롭 검증 ({target_path.name})")
     print("============================================================")
     assert target_path.exists(), f"스크린샷 파일이 없습니다: {target_path}"
 
@@ -67,15 +67,15 @@ def test_step3_2_roi_crop(screenshot_path: Optional[Path] = None):
     print(f"   - 저장 경로: {DEBUG_CROPS_DIR} (총 {len(saved_files)}개 파일 생성)")
     print(f"   - 전체 ROI 박스 확인용 파일: {DEBUG_CROPS_DIR / f'{prefix}_overlay.png'}")
     assert len(saved_files) == 13, f"저장된 디버그 파일 개수 오류: {len(saved_files)}"
-    print("✅ Step 3-2 ROI 크롭 테스트 통과!")
+    print("✅ 선출 화면 ROI 크롭 테스트 통과!")
 
 
-def test_step3_3_icon_matching(screenshot_path: Optional[Path] = None):
-    """[Step 3-3] 임의의 선출 화면 상대 6마리 & 내 엔트리 6마리 아이콘 매칭 범용 검증"""
+def test_preview_icon_matching(screenshot_path: Optional[Path] = None):
+    """[검증 2] 임의의 선출 화면 상대 6마리 & 내 엔트리 6마리 아이콘 매칭 범용 검증"""
     target_path = _resolve_screenshot_path(screenshot_path)
 
     print("\n============================================================")
-    print(f" [검증 2] Step 3-3: 선출 6마리 미니 아이콘 매칭 검증 ({target_path.name})")
+    print(f" [검증 2] 선출 6마리 미니 아이콘 매칭 검증 ({target_path.name})")
     print("============================================================")
 
     cropper = ROICropper()
@@ -114,7 +114,7 @@ def test_step3_3_icon_matching(screenshot_path: Optional[Path] = None):
             f"슬롯 {r.slot} ({r.species_ko}) 일치율이 임계값({MIN_SIMILARITY_THRESHOLD}%) 미만입니다: {r.similarity:.1f}%"
         )
 
-    print("\n✅ Step 3-3 선출 아이콘 매칭 통과!")
+    print("\n✅ 선출 아이콘 매칭 통과!")
 
 
 if __name__ == "__main__":
@@ -122,8 +122,8 @@ if __name__ == "__main__":
     print("=" * 60)
     print("  포챔스 배틀 어시스턴트 - Step 3-1 선출 화면 비전 테스트")
     print("=" * 60)
-    test_step3_2_roi_crop(cli_path)
-    test_step3_3_icon_matching(cli_path)
+    test_preview_roi_crop(cli_path)
+    test_preview_icon_matching(cli_path)
     print("\n" + "=" * 60)
     print("  🎉 선출 화면 비전 테스트 모두 통과!")
     print("=" * 60)

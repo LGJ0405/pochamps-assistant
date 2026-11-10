@@ -73,17 +73,16 @@ def _resolve_battle_screenshots(custom_path: Optional[Path] = None) -> List[Path
     raise FileNotFoundError(f"{SCREENSHOTS_DIR} 내에 테스트할 배틀 화면 스크린샷이 없습니다.")
 
 
-def test_battle_roi_crop(
+def _run_battle_roi_crop_single(
     screenshot_path: Path,
-    cropper: Optional[ROICropper] = None,
+    cropper: ROICropper,
 ):
-    """[검증 1] 배틀 화면 ROI 좌표 크롭 크기 및 디버그 이미지 저장 검증"""
+    """단일 배틀 스크린샷에 대한 ROI 좌표 크롭 크기 및 디버그 이미지 저장 검증"""
     prefix = screenshot_path.stem
     print("\n============================================================")
     print(f" [검증 1] 배틀 화면 ROI 크롭 검증 ({screenshot_path.name})")
     print("============================================================")
 
-    cropper = cropper or ROICropper()
     frame = imread_safe(screenshot_path)
 
     battle_crops = cropper.crop_battle_rois(frame)
@@ -122,19 +121,27 @@ def test_battle_roi_crop(
     print(f"✅ [{screenshot_path.name}] 배틀 ROI 크롭 검증 통과!")
 
 
-def test_battle_hud_icon_matching(
-    screenshot_path: Path,
+def test_battle_roi_crop(
+    screenshot_path: Optional[Path] = None,
     cropper: Optional[ROICropper] = None,
-    matcher: Optional[IconMatcher] = None,
 ):
-    """[검증 2] 배틀 HUD 미니 아이콘(일반 폼 및 메가진화 폼 포함) 매칭 검증"""
+    """[검증 1] 배틀 화면 ROI 좌표 크롭 크기 및 디버그 이미지 저장 검증"""
+    cropper = cropper or ROICropper()
+    targets = _resolve_battle_screenshots(screenshot_path)
+    for sc_path in targets:
+        _run_battle_roi_crop_single(sc_path, cropper)
+
+
+def _run_battle_hud_icon_matching_single(
+    screenshot_path: Path,
+    cropper: ROICropper,
+    matcher: IconMatcher,
+):
+    """단일 배틀 스크린샷에 대한 HUD 미니 아이콘(일반 폼 및 메가진화 폼 포함) 매칭 검증"""
     print("\n============================================================")
     print(f" [검증 2] 배틀 HUD 미니 아이콘 매칭 검증 ({screenshot_path.name})")
     print("============================================================")
 
-    cropper = cropper or ROICropper()
-    # 배틀 중에는 메가진화 폼(예: 메가갸라도스)이 HUD 아이콘에 표시되므로 include_mega_in_preview=True 사용
-    matcher = matcher or IconMatcher(include_mega_in_preview=True)
     frame = imread_safe(screenshot_path)
     battle_crops = cropper.crop_battle_rois(frame)
 
@@ -161,6 +168,20 @@ def test_battle_hud_icon_matching(
         )
 
     print(f"\n✅ [{screenshot_path.name}] 배틀 HUD 아이콘 매칭 통과!")
+
+
+def test_battle_hud_icon_matching(
+    screenshot_path: Optional[Path] = None,
+    cropper: Optional[ROICropper] = None,
+    matcher: Optional[IconMatcher] = None,
+):
+    """[검증 2] 배틀 HUD 미니 아이콘(일반 폼 및 메가진화 폼 포함) 매칭 검증"""
+    cropper = cropper or ROICropper()
+    # 배틀 중에는 메가진화 폼(예: 메가갸라도스)이 HUD 아이콘에 표시되므로 include_mega_in_preview=True 사용
+    matcher = matcher or IconMatcher(include_mega_in_preview=True)
+    targets = _resolve_battle_screenshots(screenshot_path)
+    for sc_path in targets:
+        _run_battle_hud_icon_matching_single(sc_path, cropper, matcher)
 
 
 if __name__ == "__main__":

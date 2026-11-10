@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 cropper.py
-[Step 3-2] config/roi_coords.json에 정의된 고정 ROI 좌표를 기반으로
+config/roi_coords.json에 정의된 고정 ROI 좌표를 기반으로
 선출 화면 및 배틀 화면을 영역별로 분할(Crop)하고 디버그 이미지를 저장하는 모듈
 """
 

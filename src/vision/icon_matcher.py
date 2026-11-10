@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 icon_matcher.py
-[Step 3-3] ImageHash(dHash) 기반 선출 화면 6마리 미니 아이콘 고속 종족 확정 모듈
+ImageHash(dHash) 기반 선출 화면 및 배틀 HUD 미니 아이콘 고속 종족 확정 모듈
 - 부팅 시 data/icons/*.png의 흑백 윤곽선 해시(dHash)를 메모리에 인덱싱합니다.
 - 흑백 그레이스케일 및 외곽선 변화량을 비교하므로 이로치 여부에 영향받지 않습니다.
 - 별도의 ID 매핑 파일 없이 data/ko_to_en.json 사전을 참조하여 영문 종족명 및 한글명을 반환합니다.

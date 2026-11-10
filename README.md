@@ -4,7 +4,7 @@
 
 ## 🚀 빠른 시작
 
-### 1. 의존성 설치
+### 1. 의존성 설치 및 환경 변수 설정
 
 #### Node.js
 ```bash
@@ -16,26 +16,24 @@ npm install
 python -m venv .venv
 .\.venv\Scripts\activate
 pip install -r requirements.txt
+$env:PYTHONIOENCODING = "utf-8"
 ```
 
 ### 2. Step 1 계산 엔진 테스트
 ```powershell
 # Windows PowerShell
-$env:PYTHONIOENCODING = "utf-8"
 python test_step1_calc.py
 ```
 
 ### 3. Step 2 한영 데이터 링크 및 샘플 계산 테스트
 ```powershell
 # Windows PowerShell
-$env:PYTHONIOENCODING = "utf-8"
 python test_step2_data_link.py
 ```
 
 ### 4. Step 3 비전 크롭 및 아이콘 매칭 테스트 (선출 화면 & 배틀 HUD)
 ```powershell
 # Windows PowerShell
-$env:PYTHONIOENCODING = "utf-8"
 python scripts/download_icons.py
 python test_step3_1_vision.py
 python test_step3_2_vision.py

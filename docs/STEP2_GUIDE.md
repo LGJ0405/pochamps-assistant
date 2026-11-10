@@ -13,7 +13,8 @@
   * 기술(`moves`): 901개
   * 특성(`abilities`): 310개
   * 도구(`items`): 실전 배틀 도구 401개 (비배틀 아이템 자동 필터링)
-* **데이터 어댑터 (`src/adapter.py`)**: 한국어 샘플 ➔ 영문 `PokemonInput` 자동 변환 및 `gimmick.mega` 처리
+  * 성격(`natures`): 25개
+* **데이터 어댑터 (`src/adapter.py`)**: 한국어 샘플 ➔ 영문 `PokemonInput` 자동 변환, 종족명·슬러그 양방향 참조(`to_species_en` / `to_species_ko`) 및 `gimmick.mega` 처리
 * **포챔스 스탯 체계 (`gen = 0`)**: 실수치 66 분배($\text{HP} = \text{종족값} + \text{sp} + 75$, $\text{기타} = \lfloor \text{성격보정} \times (\text{종족값} + \text{sp} + 20) \rfloor$)
 
 ---
@@ -86,7 +87,7 @@ pochamps-assistant/
 │   │   ├── ability_names.csv   # [✨ NEW] 특성 다국어 원천 CSV
 │   │   ├── item_names.csv      # [✨ NEW] 도구 다국어 원천 CSV
 │   │   └── move_names.csv      # [✨ NEW] 기술 다국어 원천 CSV
-│   ├── ko_to_en.json           # [🔄 UPDATED] 기술·특성·실전도구 대량 동기화 및 347종 검증
+│   ├── ko_to_en.json           # [🔄 UPDATED] 포켓몬(347종)·기술·특성·실전도구·성격(25개) 한영 사전 동기화
 │   ├── my_team.json            # [🔄 UPDATED] 한국어 단일 포맷 + 실수치 66 + gimmick.mega 개편
 │   └── meta_samples.json       # [🔄 UPDATED] 한국어 단일 포맷 + 실수치 66 + gimmick.mega 개편
 ├── docs/
@@ -159,10 +160,13 @@ pochamps-assistant/
 * 본가의 510 노력치(실수치 합 65) 대신, 포챔스 고유의 **실수치 66 직접 분배** 공식을 사용하여 인게임 수치와 100% 일치하는 스탯 및 데미지를 산출합니다.
 
 ### 4.3 한국어 데이터 어댑터 (`src/adapter.py`)
-* `DataAdapter`: `ko_to_en.json` 및 25개 성격 매핑(`NATURE_KO_TO_EN`)을 로드하여 한국어 포켓몬명, 기술, 특성, 도구, 성격을 영문 식별자로 변환합니다.
+* `DataAdapter`: `data/ko_to_en.json`에 정의된 포켓몬(`species`), 기술(`moves`), 특성(`abilities`), 도구(`items`), 성격(`natures`, 25종) 사전을 일원화하여 로드하고 영문 식별자로 변환합니다.
+* **양방향 종족명 및 슬러그 변환**:
+  * `to_species_en(name_ko)`: 한글 종족명(`"보만다"`) 또는 영문 소문자 슬러그(`"salamence-mega"`)를 계산기용 정식 영문명(`"Salamence"`, `"Salamence-Mega"`)으로 변환합니다.
+  * `to_species_ko(name_en_or_slug)`: 정식 영문명 또는 파일명 슬러그를 한글 종족명(`"보만다"`, `"메가보만다"`)으로 역참조합니다.
 * `sample_to_pokemon_input(sample, use_mega=True)`:
   * `use_mega=True`일 때 샘플 내 `gimmick.mega`가 존재하면 메가진화 종족명(`form`)과 메가 특성(`ability`)으로 자동 전환하여 `PokemonInput` 객체를 생성합니다.
-  * `use_mega=False`일 때는 메가진화 전 기본 종족명과 기본 특성으로 생성되어 턴별/상황별 시뮬레이션을 지원합니다.
+  * `use_mega=False`일 때는 메가진화 전 기본 종족명과 기본 특성으로 생성되어 턴별/상황별(메가진화 전·후 비교) 시뮬레이션을 지원합니다.
 
 ---
 
@@ -184,7 +188,6 @@ pochamps-assistant/
 
 ```powershell
 # Windows PowerShell
-$env:PYTHONIOENCODING = "utf-8"
 python test_step2_data_link.py
 ```
 
