@@ -93,8 +93,7 @@ pochamps-assistant/
 │   └── worker.js           # Node.js @smogon/calc 래퍼 워커
 ├── data/
 │   ├── ko_to_en.json       # 한국어→영어 매핑 사전
-│   ├── my_team.json        # 내 팀 포켓몬 정보
-│   └── meta_samples.json   # 상대 메타 포켓몬 샘플 세트
+│   └── my_team.json        # 내 팀 포켓몬 정보
 ├── docs/
 │   └── STEP1_GUIDE.md      # 본 문서 (Step 1 가이드)
 ├── src/

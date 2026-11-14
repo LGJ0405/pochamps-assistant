@@ -6,7 +6,7 @@
 
 ## 1. 개요 (Overview)
 
-사용자가 배틀 파티(`my_team.json`)와 상대 메타 샘플(`meta_samples.json`)을 **순수 한국어**와 **포챔스 전용 실수치 노력치(총합 66 체계)**로 편리하게 작성하면, 어댑터(`DataAdapter`)가 한영 매핑 사전(`ko_to_en.json`)을 통해 `@smogon/calc`의 포챔스 모드(`gen = 0`) 규격으로 자동 변환하여 데미지 및 스피드를 계산하는 데이터 파이프라인을 구축했습니다.
+사용자가 배틀 파티(`my_team.json`)를 **순수 한국어**와 **포챔스 전용 실수치 노력치(총합 66 체계)**로 편리하게 작성하면, 어댑터(`DataAdapter`)가 한영 매핑 사전(`ko_to_en.json`)을 통해 `@smogon/calc`의 포챔스 모드(`gen = 0`) 규격으로 자동 변환하여 데미지 및 스피드를 계산하는 데이터 파이프라인을 구축했습니다.
 
 * **한영 매핑 사전 (`data/ko_to_en.json`)**:
   * 포켓몬(`species`): 347종 (기본 포켓몬 + 리전폼 + 공식/포챔스 메가진화 81종 포함)
@@ -49,7 +49,7 @@ sequenceDiagram
     autonumber
     box rgba(59, 130, 246, 0.1) Python 환경
         participant A as Application / Test<br/>(test_step2_data_link.py)
-        participant DATA as Data Layer<br/>(my_team / meta_samples / ko_to_en)
+        participant DATA as Data Layer<br/>(my_team / ko_to_en)
         participant ADP as DataAdapter<br/>(src/adapter.py)
         participant B as CalcBridge<br/>(src/calc_bridge.py)
     end
@@ -58,7 +58,7 @@ sequenceDiagram
         participant D as @smogon/calc<br/>(Gen 0 Champions Engine)
     end
 
-    A->>DATA: 한국어 샘플 로드 (my_team.json, meta_samples.json)
+    A->>DATA: 한국어 팀 데이터 로드 (my_team.json)
     A->>ADP: sample_to_pokemon_input(sample, use_mega=True)
     ADP->>DATA: ko_to_en.json 조회 (종족명·기술·특성·도구·성격)
     DATA-->>ADP: 영문 식별자 반환
@@ -88,8 +88,8 @@ pochamps-assistant/
 │   │   ├── item_names.csv      # [✨ NEW] 도구 다국어 원천 CSV
 │   │   └── move_names.csv      # [✨ NEW] 기술 다국어 원천 CSV
 │   ├── ko_to_en.json           # [🔄 UPDATED] 포켓몬(347종)·기술·특성·실전도구·성격(25개) 한영 사전 동기화
-│   ├── my_team.json            # [🔄 UPDATED] 한국어 단일 포맷 + 실수치 66 + gimmick.mega 개편
-│   └── meta_samples.json       # [🔄 UPDATED] 한국어 단일 포맷 + 실수치 66 + gimmick.mega 개편
+│   └── my_team.json            # [🔄 UPDATED] 팀 단위(team1) 파티 엔트리 구조 + 실수치 66 + gimmick.mega 개편
+├── docs/
 ├── docs/
 │   ├── STEP1_GUIDE.md          # Step 1: 계산 엔진 통합 가이드
 │   └── STEP2_GUIDE.md          # [✨ NEW] 본 문서 (Step 2 가이드)
@@ -103,41 +103,47 @@ pochamps-assistant/
 ├── package.json                # Node.js 패키지 정의
 ├── requirements.txt            # Python 의존성 목록
 ├── test_step1_calc.py          # [🔄 UPDATED] Step 1 계산 엔진 테스트 (실수치 66 적용)
-└── test_step2_data_link.py     # [✨ NEW] Step 2 한영 데이터 링크 및 샘플 계산 통합 테스트
+└── test_step2_data_link.py     # [✨ NEW] Step 2 한영 데이터 링크 및 파티 계산 통합 테스트
 ```
 
-### 3.2 샘플 데이터 표준 규격 (`my_team.json` & `meta_samples.json`)
-내 파티와 상대 메타 샘플 모두 **동일한 한국어 단일 규격**을 사용합니다.
-* **노력치 (`evs`)**: 포챔스 규격인 **실수치 총합 66 (단일 항목 최대 32)**으로 기입합니다.
-* **특수 기믹 (`gimmick`)**: 메가진화 시 변경되는 폼(`form`)과 특성(`ability`)을 하위 블록으로 분리하여 배틀 등장 시 특성(예: 위협, 배짱)과 메가진화 후 특성(예: 스카이스킨, 부자유친)을 모두 보존합니다.
+### 3.2 내 팀 파티 데이터 표준 규격 (`my_team.json`)
+내 팀 파티는 **한국어 식별자**, **포챔스 실수치 66 체계**, **메가진화 기믹(`gimmick.mega`)** 표준 규격을 사용합니다:
 
+* **팀 단위 파티 엔트리 구조**: 여러 개의 배틀 엔트리(6마리 파티)를 유연하게 관리할 수 있도록 `"team1"`, `"team2"` 등의 팀 키를 루트로 사용합니다.
+* **노력치 (`evs`)**: 포챔스 규격인 **실수치 총합 66 (단일 항목 최대 32)**으로 기입합니다.
+* **특수 기믹 (`gimmick`)**: 메가진화 시 변경되는 폼(`form`)과 특성(`ability`)을 하위 블록으로 분리하여 배틀 등장 시 특성(예: 까칠한피부, 저주받은바디)과 메가진화 후 특성(예: 부식, 그림자밟기)을 모두 보존합니다.
+
+#### 내 팀 파티 구조 예시 (`data/my_team.json`)
 ```json
 {
-  "보만다": [
+  "team1": [
     {
-      "name": "보만다",
-      "form_desc": "메가진화 물리 용춤형",
-      "item": "보만다나이트",
-      "ability": "위협",
-      "nature": "명랑",
-      "evs": {
-        "hp": 2,
-        "atk": 32,
-        "def": 0,
-        "spa": 0,
-        "spd": 0,
-        "spe": 32
-      },
-      "moves": [
-        "이판사판태클",
-        "용의춤",
-        "지진",
-        "날개쉬기"
-      ],
+      "name": "아머까오",
+      "item": "울퉁불퉁멧",
+      "ability": "미러아머",
+      "nature": "장난꾸러기",
+      "evs": { "hp": 32, "atk": 2, "def": 32, "spa": 0, "spd": 0, "spe": 0 },
+      "moves": ["날개쉬기", "유턴", "바디프레스", "철벽"]
+    },
+    {
+      "name": "한카리아스",
+      "item": "기합의띠",
+      "ability": "까칠한피부",
+      "nature": "고집",
+      "evs": { "hp": 2, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 32 },
+      "moves": ["지진", "스케일샷", "암석봉인", "스텔스록"]
+    },
+    {
+      "name": "팬텀",
+      "item": "팬텀나이트",
+      "ability": "저주받은바디",
+      "nature": "겁쟁이",
+      "evs": { "hp": 12, "atk": 0, "def": 4, "spa": 20, "spd": 0, "spe": 30 },
+      "moves": ["섀도볼", "오물웨이브", "얼어붙은바람", "길동무"],
       "gimmick": {
         "mega": {
-          "form": "메가보만다",
-          "ability": "스카이스킨"
+          "form": "메가팬텀",
+          "ability": "그림자밟기"
         }
       }
     }
@@ -201,9 +207,9 @@ python -m pytest test_step2_data_link.py -v -s
    * 대상: `data/ko_to_en.json`의 `species` 전체 (347종)
    * 검증: 일반 포켓몬, 리전폼, 공식 및 포챔스 커스텀 메가진화 전 종족이 `gen = 0` 계산 엔진에서 오류 없이 인스턴스화 및 데미지 계산되는지 전수 확인.
 2. **`test_sample_data_link`**:
-   * 대상: `data/my_team.json`, `data/meta_samples.json`
-   * 검증: 샘플에 기입된 모든 한글 이름(포켓몬, 메가폼, 도구, 특성, 성격, 기술 4개)이 사전을 통해 누락 없이 영문으로 매핑되는지 확인.
+   * 대상: `data/my_team.json`
+   * 검증: 내 팀 파티(team1 6마리)에 기입된 모든 한글 이름(포켓몬, 메가폼, 도구, 특성, 성격, 기술 4개)이 사전을 통해 누락 없이 영문으로 매핑되는지 확인.
 3. **`test_sample_damage_calc`**:
-   * 대진 1: 내 파티 `메가캥카` (공격 32, HP 32, 방어 2) vs 상대 `메가보만다` (공격 32, 스피드 32, HP 2)
-   * 대진 2: 내 파티 `메가캥카` vs 상대 `메가리자몽X` (공격 32, 스피드 32, HP 2)
-   * 검증: 한글 샘플을 `DataAdapter`로 변환하여 속이기, 이판사판태클, 냉동빔, 기습 각각의 데미지 및 확정/난수타 판정이 정상 출력되는지 확인.
+   * 대진 1: 내 파티 `한카리아스` (공격 32, 스피드 32, HP 2, 기합의띠) vs `아머까오` (HP 32, 방어 32, 공격 2, 울퉁불퉁멧)
+   * 대진 2: 내 파티 `한카리아스` vs `메가팬텀` (특공 20, 스피드 30, HP 12, 방어 4, 그림자밟기)
+   * 검증: 한글 샘플을 `DataAdapter`로 변환하여 지진(비행 0배 무효 / 독 2배 약점 확정 1타), 스케일샷, 암석봉인(공격 기술)의 데미지 판정 및 스텔스록(설치/변화기) 예외 처리가 정상 출력되는지 확인.
