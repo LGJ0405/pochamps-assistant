@@ -94,6 +94,12 @@ function runCalc(request) {
       desc: desc,
       fullDesc: fullDesc,
       moveDesc: moveDesc,
+      move: {
+        name: move.name,
+        category: move.category,
+        bp: move.bp,
+        type: move.type,
+      },
       // 추가 메타정보
       attacker: {
         species: attacker.name,

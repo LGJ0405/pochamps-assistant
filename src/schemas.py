@@ -155,6 +155,9 @@ class CalcResult:
     desc: str = ""
     full_desc: str = ""
     move_desc: str = ""
+    move_category: str = ""  # 'Physical', 'Special', 'Status'
+    move_bp: int = 0
+    move_type: str = ""
     attacker_species: str = ""
     attacker_stats: dict = field(default_factory=dict)
     defender_species: str = ""
@@ -167,12 +170,16 @@ class CalcResult:
         if not data.get("ok"):
             return cls(ok=False, error=data.get("error", "Unknown error"))
         r = data["result"]
+        m = r.get("move", {})
         return cls(
             ok=True,
             damage=r.get("damage"),
             desc=r.get("desc", ""),
             full_desc=r.get("fullDesc", ""),
             move_desc=r.get("moveDesc", ""),
+            move_category=m.get("category", ""),
+            move_bp=m.get("bp", 0),
+            move_type=m.get("type", ""),
             attacker_species=r.get("attacker", {}).get("species", ""),
             attacker_stats=r.get("attacker", {}).get("stats", {}),
             defender_species=r.get("defender", {}).get("species", ""),

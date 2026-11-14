@@ -68,35 +68,53 @@ class ROICropper:
             interpolation=cv2.INTER_AREA if w > self.target_width else cv2.INTER_LINEAR,
         )
 
-    @staticmethod
-    def crop_rect(frame: np.ndarray, rect: dict) -> np.ndarray:
-        """{"x", "y", "w", "h"} 딕셔너리 영역을 안전하게 잘라냅니다."""
-        h, w = frame.shape[:2]
-        x1 = max(0, int(rect["x"]))
-        y1 = max(0, int(rect["y"]))
-        x2 = min(w, x1 + int(rect["w"]))
-        y2 = min(h, y1 + int(rect["h"]))
-        return frame[y1:y2, x1:x2].copy()
+    def crop_rect(self, frame: np.ndarray, rect: dict) -> np.ndarray:
+        """
+        {"x", "y", "w", "h"} 딕셔너리(기준 해상도 좌표) 영역을 잘라냅니다.
+        전체 프레임을 리사이즈하지 않고 원본 프레임에서 비례 좌표를 바로 슬라이싱한 뒤
+        조각 이미지만 목표 크기로 변환하여 속도를 극대화합니다.
+        """
+        fh, fw = frame.shape[:2]
+        tw, th = int(rect["w"]), int(rect["h"])
+        tx, ty = int(rect["x"]), int(rect["y"])
+
+        if fw == self.target_width and fh == self.target_height:
+            x1 = max(0, tx)
+            y1 = max(0, ty)
+            x2 = min(fw, x1 + tw)
+            y2 = min(fh, y1 + th)
+            return frame[y1:y2, x1:x2].copy()
+
+        sx = fw / float(self.target_width)
+        sy = fh / float(self.target_height)
+        x1 = max(0, int(round(tx * sx)))
+        y1 = max(0, int(round(ty * sy)))
+        x2 = min(fw, int(round((tx + tw) * sx)))
+        y2 = min(fh, int(round((ty + th) * sy)))
+        patch = frame[y1:y2, x1:x2]
+        if patch.size == 0:
+            return np.zeros((th, tw, 3), dtype=frame.dtype)
+        return cv2.resize(
+            patch,
+            (tw, th),
+            interpolation=cv2.INTER_AREA if sx > 1.0 else cv2.INTER_LINEAR,
+        )
 
     def crop_enemy_slots(self, frame: np.ndarray) -> List[np.ndarray]:
         """선출 화면의 상대 엔트리 6개 슬롯 아이콘 이미지를 순서대로 잘라내어 반환합니다."""
-        norm = self.normalize_frame(frame)
-        return [self.crop_rect(norm, slot_rect) for slot_rect in self.enemy_team_slots]
+        return [self.crop_rect(frame, slot_rect) for slot_rect in self.enemy_team_slots]
 
     def crop_ally_slots(self, frame: np.ndarray) -> List[np.ndarray]:
         """선출 화면의 아군 엔트리 6개 슬롯 아이콘 이미지를 순서대로 잘라내어 반환합니다."""
-        norm = self.normalize_frame(frame)
-        return [self.crop_rect(norm, slot_rect) for slot_rect in self.ally_team_slots]
+        return [self.crop_rect(frame, slot_rect) for slot_rect in self.ally_team_slots]
 
     def crop_phase_indicators(self, frame: np.ndarray) -> Dict[str, np.ndarray]:
         """페이즈 판별용 고정 UI 영역을 잘라내어 딕셔너리로 반환합니다."""
-        norm = self.normalize_frame(frame)
-        return {name: self.crop_rect(norm, rect) for name, rect in self.phase_indicators.items()}
+        return {name: self.crop_rect(frame, rect) for name, rect in self.phase_indicators.items()}
 
     def crop_battle_rois(self, frame: np.ndarray) -> Dict[str, np.ndarray]:
         """배틀 화면의 주요 ROI(상태창 HUD 미니 아이콘, 체력 텍스트 영역)를 잘라내어 반환합니다."""
-        norm = self.normalize_frame(frame)
-        return {name: self.crop_rect(norm, rect) for name, rect in self.battle_rois.items()}
+        return {name: self.crop_rect(frame, rect) for name, rect in self.battle_rois.items()}
 
     def draw_debug_overlay(self, frame: np.ndarray, mode: str = "preview") -> np.ndarray:
         """정의된 ROI 박스를 프레임 위에 그려 디버그 오버레이 이미지를 반환합니다."""

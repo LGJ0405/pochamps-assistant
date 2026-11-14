@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import cv2
 import imagehash
@@ -136,15 +136,29 @@ class IconMatcher:
     def indexed_count(self) -> int:
         return len(self._slugs)
 
+    def expand_candidate_slugs(self, base_slugs: Iterable[str]) -> Set[str]:
+        """
+        선출 화면에서 식별된 기본 슬러그 목록(예: ['gyarados', 'blaziken', 'aegislash-shield'])으로부터
+        메가진화 및 폼체인지 슬러그(예: 'gyarados-mega', 'blaziken-mega')를 모두 포함한 후보 집합을 생성합니다.
+        """
+        prefixes = {s.strip().lower().split("-")[0] for s in base_slugs if s}
+        expanded: Set[str] = set()
+        for slug in self._slugs:
+            base = slug.split("-")[0]
+            if slug in base_slugs or base in prefixes:
+                expanded.add(slug)
+        return expanded
+
     def match_single(
         self,
         slot_img: Union[np.ndarray, Image.Image],
         slot_num: int = 1,
         top_k: int = 8,
+        allowed_slugs: Optional[Set[str]] = None,
     ) -> IconMatchResult:
         """
         단일 슬롯 크롭 이미지에서:
-        1차: NumPy 벡터화 XOR 연산으로 전체 도감 대상 초고속 dHash 해밍 거리 산출 및 상위 top_k 압축
+        1차: NumPy 벡터화 XOR 연산으로 전체 도감(또는 allowed_slugs 후보군) 대상 초고속 dHash 해밍 거리 산출
         2차: 알파 마스크 내부 윤곽선 정규화 내적(Cosine Similarity)으로 최종 종족 확정
         """
         if self._gray_bits is None or self._edge_bits is None or not self._slugs:
@@ -172,7 +186,20 @@ class IconMatcher:
         dist_gray = np.count_nonzero(self._gray_bits != t_gray, axis=1)
         total_dist = dist_edge * 2 + dist_gray
 
-        top_indices = np.argpartition(total_dist, min(top_k, len(self._slugs) - 1))[:top_k]
+        if allowed_slugs:
+            candidate_indices = [
+                i for i, s in enumerate(self._slugs) if s in allowed_slugs
+            ]
+            if candidate_indices:
+                cand_arr = np.array(candidate_indices, dtype=np.int64)
+                cand_dists = total_dist[cand_arr]
+                k = min(top_k, len(cand_arr))
+                top_local = np.argsort(cand_dists)[:k]
+                top_indices = cand_arr[top_local]
+            else:
+                top_indices = np.argpartition(total_dist, min(top_k, len(self._slugs) - 1))[:top_k]
+        else:
+            top_indices = np.argpartition(total_dist, min(top_k, len(self._slugs) - 1))[:top_k]
 
         # 2차: 상위 후보들에 대해 전경 윤곽선 상관계수 정밀 대조
         best_slug = self._slugs[int(top_indices[0])]
