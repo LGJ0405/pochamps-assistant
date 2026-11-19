@@ -112,9 +112,16 @@ class ROICropper:
         """페이즈 판별용 고정 UI 영역을 잘라내어 딕셔너리로 반환합니다."""
         return {name: self.crop_rect(frame, rect) for name, rect in self.phase_indicators.items()}
 
+    _DEFAULT_SUBTITLE_RECT = {"x": 650, "y": 1060, "w": 1050, "h": 250}
+
     def crop_battle_rois(self, frame: np.ndarray) -> Dict[str, np.ndarray]:
         """배틀 화면의 주요 ROI(상태창 HUD 미니 아이콘, 체력 텍스트 영역)를 잘라내어 반환합니다."""
         return {name: self.crop_rect(frame, rect) for name, rect in self.battle_rois.items()}
+
+    def crop_battle_subtitle(self, frame: np.ndarray) -> np.ndarray:
+        """배틀 애니메이션 중 하단 중앙 자막(기술명·랭크·타수) 영역을 잘라내어 반환합니다."""
+        rect = self.config.get("battle_subtitle", self._DEFAULT_SUBTITLE_RECT)
+        return self.crop_rect(frame, rect)
 
     def draw_debug_overlay(self, frame: np.ndarray, mode: str = "preview") -> np.ndarray:
         """정의된 ROI 박스를 프레임 위에 그려 디버그 오버레이 이미지를 반환합니다."""

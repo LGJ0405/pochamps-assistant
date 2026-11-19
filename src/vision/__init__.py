@@ -3,7 +3,14 @@
 src.vision 패키지
 """
 
-from .battle_ocr import AllyHPResult, BattleOCR, CommandBannerResult, EnemyHPResult
+from .battle_ocr import (
+    AllyHPResult,
+    BattleOCR,
+    BattleSubtitleEvent,
+    BattleSubtitleOCR,
+    CommandBannerResult,
+    EnemyHPResult,
+)
 from .cropper import ROICropper, imread_safe, imwrite_safe
 from .icon_matcher import IconMatcher, IconMatchResult
 from .party_ocr import KoreanOCR, PartyParser, PokemonSlotData
@@ -45,6 +52,8 @@ __all__ = [
     "GamePhase",
     "PhaseDetectionResult",
     "BattleOCR",
+    "BattleSubtitleOCR",
+    "BattleSubtitleEvent",
     "EnemyHPResult",
     "AllyHPResult",
     "CommandBannerResult",
