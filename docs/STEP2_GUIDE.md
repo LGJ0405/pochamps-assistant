@@ -90,7 +90,6 @@ pochamps-assistant/
 │   ├── ko_to_en.json           # [🔄 UPDATED] 포켓몬(347종)·기술·특성·실전도구·성격(25개) 한영 사전 동기화
 │   └── my_team.json            # [🔄 UPDATED] 팀 단위(team1) 파티 엔트리 구조 + 실수치 66 + gimmick.mega 개편
 ├── docs/
-├── docs/
 │   ├── STEP1_GUIDE.md          # Step 1: 계산 엔진 통합 가이드
 │   └── STEP2_GUIDE.md          # [✨ NEW] 본 문서 (Step 2 가이드)
 ├── scripts/

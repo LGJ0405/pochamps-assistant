@@ -100,14 +100,16 @@ function runCalc(request) {
         bp: move.bp,
         type: move.type,
       },
-      // 추가 메타정보
+      // 추가 메타정보 (stats: 랭크·도구·특성·필드 반영 최종 스탯 / rawStats: 0랭크 기본 스탯)
       attacker: {
-        species: attacker.name,
-        stats: attacker.rawStats,
+        species: result.attacker.name,
+        stats: result.attacker.stats,
+        rawStats: result.attacker.rawStats,
       },
       defender: {
-        species: defender.name,
-        stats: defender.rawStats,
+        species: result.defender.name,
+        stats: result.defender.stats,
+        rawStats: result.defender.rawStats,
       },
     },
   };

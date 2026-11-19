@@ -117,15 +117,15 @@ pochamps-assistant/
 * **0배 무효 상성 특수 처리**:
   * 공격 상성이 0배(무효)여서 데미지가 `0`인 경우 `@smogon/calc`의 `result.fullDesc("%", false)` 옵션을 활용해 내부 예외 발생을 방지합니다.
   * 설명 문구 뒤에 `-- 효과 없음`을 추가하여 배틀 UI에 직관적인 결과를 전달합니다.
-* 계산된 수치(최소/최대 데미지 난수 배열, 퍼센트, KO 확률 문구, 스탯)를 `stdout`으로 한 줄 JSON 형태로 출력합니다.
+* 계산된 수치(최소/최대 데미지 난수 배열, 퍼센트, KO 확률 문구, 기술 분류 `category`, 랭크·도구·특성·필드가 반영된 최종 스탯 `stats` 및 0랭크 원시 스탯 `rawStats`)를 `stdout`으로 한 줄 JSON 형태로 출력합니다.
 
 ### 4.2 Python 데이터 스키마 (`src/schemas.py`)
 * `StatSpread`: HP, 공격, 방어, 특수공격, 특수방어, 스피드 분배 (EVs / IVs).
 * `Boosts`: 랭크 변화 (-6 ~ +6).
-* `PokemonInput`: 종족명(일반/메가진화/리전폼 포함), 레벨, 지닌물건, 특성, 성격, 노력치/개체값, 상태이상.
+* `PokemonInput`: 종족명(일반/메가진화/리전폼 포함), 레벨, 지닌물건, 특성, 성격, 노력치/개체값, 랭크, 상태이상.
 * `FieldInput`: 날씨(Sun, Rain 등), 필드(Electric, Grassy 등), 벽(리플렉터, 빛의장막 등), 장판(스텔스록, 압정).
 * `CalcRequest`: 계산 요청 컨테이너.
-* `CalcResult`: 데미지 배열, 기술 설명 문구, 스피드 및 실수치 반환 컨테이너.
+* `CalcResult`: 데미지 배열, 기술 분류(`move_category`), 기술 설명 문구, 최종 스탯(`attacker_stats` / `defender_stats`) 및 0랭크 원시 스탯(`attacker_raw_stats` / `defender_raw_stats`) 반환 컨테이너.
 
 ### 4.3 Python ↔ Node.js 브릿지 (`src/calc_bridge.py`)
 * `subprocess.Popen`을 사용해 Node.js 프로세스를 백그라운드로 띄워 유지(Keep-Alive)함으로써 매 계산마다 프로세스를 새로 띄우는 오버헤드를 제거했습니다.

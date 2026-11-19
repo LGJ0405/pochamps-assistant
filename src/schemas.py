@@ -160,8 +160,10 @@ class CalcResult:
     move_type: str = ""
     attacker_species: str = ""
     attacker_stats: dict = field(default_factory=dict)
+    attacker_raw_stats: dict = field(default_factory=dict)
     defender_species: str = ""
     defender_stats: dict = field(default_factory=dict)
+    defender_raw_stats: dict = field(default_factory=dict)
     error: str = ""
 
     @classmethod
@@ -171,6 +173,8 @@ class CalcResult:
             return cls(ok=False, error=data.get("error", "Unknown error"))
         r = data["result"]
         m = r.get("move", {})
+        atk_meta = r.get("attacker", {})
+        dfn_meta = r.get("defender", {})
         return cls(
             ok=True,
             damage=r.get("damage"),
@@ -180,8 +184,10 @@ class CalcResult:
             move_category=m.get("category", ""),
             move_bp=m.get("bp", 0),
             move_type=m.get("type", ""),
-            attacker_species=r.get("attacker", {}).get("species", ""),
-            attacker_stats=r.get("attacker", {}).get("stats", {}),
-            defender_species=r.get("defender", {}).get("species", ""),
-            defender_stats=r.get("defender", {}).get("stats", {}),
+            attacker_species=atk_meta.get("species", ""),
+            attacker_stats=atk_meta.get("stats", {}),
+            attacker_raw_stats=atk_meta.get("rawStats", {}),
+            defender_species=dfn_meta.get("species", ""),
+            defender_stats=dfn_meta.get("stats", {}),
+            defender_raw_stats=dfn_meta.get("rawStats", {}),
         )
